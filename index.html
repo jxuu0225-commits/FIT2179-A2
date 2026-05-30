@@ -81,7 +81,7 @@
 <!-- ══ HERO ══ -->
 <div class="hero">
   <div class="hero-eyebrow">01 — Overview</div>
-  <div class="hero-eyebrow">FIT2179 Data Visualisation 2 · Monash University · Semester 1, 2026</div>
+  <div class="hero-eyebrow">FIT2179 Data Visualisation 2 · Jiabao Xu (35474815) · Monash University · Semester 1, 2026</div>
   <h1>Australia<em>Burns</em></h1>
   <p class="hero-sub">The 2019–20 Black Summer was Australia's most devastating fire season on record. This visualisation explores where the fires burned, when they peaked, why climate conditions made them so severe, and what the nation lost.</p>
   <div class="stat-strip">
@@ -162,7 +162,7 @@
       <div class="card-title">Chart 7 · Dual-Axis Layered Chart — Temperature & Rainfall Together ✦ Custom</div>
       <div class="card-desc">Custom layered chart combining two marks on independent Y-axes: orange area = monthly avg max temperature (left axis); blue bars = monthly total rainfall (right axis). The parallel Dec 2019 spike (high heat + near-zero rain) is immediately striking. Source: BOM IDCJAC0010 + IDCJAC0009.</div>
       <div id="dual"></div>
-      <p class="caption">December 2019: highest temperature of the season + lowest rainfall of the season. This dual extreme triggered the worst fire conditions.</p>
+      <p class="caption">December 2019: highest temperature of the season + lowest rainfall of the season. This dual extreme coincided with the worst fire conditions in south-eastern Australia.</p>
     </div>
   </div>
 </section>
@@ -260,8 +260,8 @@ vegaEmbed('#map',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
   "config":C,
   "width":500,
-  "height":270,
-  "projection":{"type":"mercator","center":[134,-28],"scale":520},
+  "height":300,
+  "projection":{"type":"mercator","center":[134,-28.5],"scale":455},
   "layer":[
     {
       "data":{
@@ -474,4 +474,3 @@ vegaEmbed('#pie',{
 </script>
 </body>
 </html>
-
