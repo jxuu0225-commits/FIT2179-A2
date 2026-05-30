@@ -103,7 +103,7 @@
       <div class="card-title">Chart 1 · Choropleth Map — Burnt Area by State</div>
       <div class="card-desc">Geographic map. Colour (hue + lightness channel) encodes total hectares burned. Darker = more land destroyed. Hover for exact values. Source: Wikipedia / AFAC 2020.</div>
       <div id="map"></div>
-      <p class="caption">NSW burned more land than all other eastern states combined.</p>
+      <p class="caption">NT had the largest burned area, while NSW had the highest human impact.</p>
     </div>
     <div class="card">
       <div class="card-title">Chart 2 · Horizontal Bar — Burnt Area Ranked by State</div>
@@ -210,7 +210,7 @@
   <p class="sec-body">The Black Summer was not a random disaster. The data reveals measurable, interconnected conditions — extreme heat, drought, early season onset — that combined to produce an unprecedented catastrophe.</p>
   <div class="takeaway-grid">
     <div class="takeaway"><div class="takeaway-icon">🌡️</div><p>December 2019 recorded only 7.8mm of rainfall while averaging 26.4°C — the critical trigger for the season's worst fires.</p></div>
-    <div class="takeaway"><div class="takeaway-icon">🗺️</div><p>NSW burned 5.2 million hectares — nearly 44% of all land lost nationally, concentrated in dense forest and biodiversity habitat.</p></div>
+    <div class="takeaway"><div class="takeaway-icon">🗺️</div><p>NT recorded the largest burned area, while NSW recorded the highest deaths and homes lost.</p></div>
     <div class="takeaway"><div class="takeaway-icon">📅</div><p>The season began in September 2019, two months earlier than historical averages, giving fires longer to build before summer peaked.</p></div>
     <div class="takeaway"><div class="takeaway-icon">💔</div><p>33 direct deaths, 3 billion animals displaced, and $100 billion in economic damage — Australia's costliest natural disaster on record.</p></div>
   </div>
@@ -240,8 +240,7 @@
 
 
 <script>
-// immediate execution
-
+console.log("DV2 script loaded");
 const C={
   background:"transparent",view:{stroke:"transparent"},
   axis:{gridColor:"rgba(255,255,255,0.07)",domainColor:"rgba(255,255,255,0.13)",tickColor:"rgba(255,255,255,0.13)",labelColor:"#9e9589",titleColor:"#9e9589",labelFontSize:11,titleFontSize:11},
@@ -249,52 +248,76 @@ const C={
   title:{color:"#faf8f4",fontSize:12,anchor:"start"}
 };
 const OPT={renderer:"svg",actions:false};
-const DANGER_SCALE={domain:["Low","Moderate","High","Very High","Extreme"],range:["#4a90c4","#8fbc5a","#f5c518","#e07b39","#c1440e"]};
-const MONTH_SORT=["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"];
-const MONTH_SORT2=["Sep 2019","Oct 2019","Nov 2019","Dec 2019","Jan 2020","Feb 2020","Mar 2020"];
 
-// CHART 1: MAP
+const DANGER_SCALE={
+  domain:["Low","Moderate","High","Very High","Extreme"],
+  range:["#4a90c4","#8fbc5a","#f5c518","#e07b39","#c1440e"]
+};
+
+// ── CHART 1: GEOGRAPHIC SYMBOL MAP ──
 vegaEmbed('#map',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":270,
-  "projection":{"type":"mercator","center":[134,-28],"scale":510},
-  "data":{"url":"https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.min.geojson","format":{"type":"json","property":"features"}},
-  "transform":[{"lookup":"properties.STATE_NAME","from":{"data":{"values":[
-    {"sn":"New South Wales","ha":5200000},{"sn":"Queensland","ha":2500000},
-    {"sn":"Victoria","ha":1500000},{"sn":"Western Australia","ha":2200000},
-    {"sn":"South Australia","ha":490000},{"sn":"Tasmania","ha":36000},
-    {"sn":"Australian Capital Territory","ha":10494},{"sn":"Northern Territory","ha":6800000}
-  ]},"key":"sn","fields":["ha"]}}],
-  "mark":{"type":"geoshape","stroke":"rgba(255,255,255,0.18)","strokeWidth":0.7},
-  "encoding":{
-    "color":{"field":"ha","type":"quantitative","scale":{"scheme":"orangered","domain":[0,7000000]},"legend":{"title":"Hectares burned","format":"~s"}},
-    "tooltip":[{"field":"properties.STATE_NAME","title":"State"},{"field":"ha","title":"Area burned (ha)","format":",.0f"}]
-  }
+  "config":C,
+  "width":500,
+  "height":270,
+  "projection":{"type":"mercator","center":[134,-28],"scale":520},
+  "layer":[
+    {
+      "data":{"sphere":{}},
+      "mark":{"type":"geoshape","fill":"rgba(255,255,255,0.02)","stroke":"rgba(255,255,255,0.12)"}
+    },
+    {
+      "data":{"graticule":{"step":[10,10]}},
+      "mark":{"type":"geoshape","stroke":"rgba(255,255,255,0.08)","strokeWidth":0.5}
+    },
+    {
+      "data":{"values":[
+        {"state":"NT","area_ha":6800000,"lon":133.8,"lat":-20.0},
+        {"state":"NSW","area_ha":5200000,"lon":147.0,"lat":-32.5},
+        {"state":"QLD","area_ha":2500000,"lon":144.0,"lat":-22.5},
+        {"state":"WA","area_ha":2200000,"lon":122.0,"lat":-25.0},
+        {"state":"VIC","area_ha":1500000,"lon":144.5,"lat":-37.0},
+        {"state":"SA","area_ha":490000,"lon":135.0,"lat":-30.0},
+        {"state":"TAS","area_ha":36000,"lon":147.0,"lat":-42.0},
+        {"state":"ACT","area_ha":10494,"lon":149.0,"lat":-35.3}
+      ]},
+      "mark":{"type":"circle","opacity":0.85,"stroke":"#faf8f4","strokeWidth":0.7},
+      "encoding":{
+        "longitude":{"field":"lon","type":"quantitative"},
+        "latitude":{"field":"lat","type":"quantitative"},
+        "size":{"field":"area_ha","type":"quantitative","scale":{"range":[80,3500]},"legend":{"title":"Burned area (ha)","format":"~s"}},
+        "color":{"field":"area_ha","type":"quantitative","scale":{"scheme":"orangered"},"legend":null},
+        "tooltip":[{"field":"state","title":"State"},{"field":"area_ha","title":"Area burned (ha)","format":",.0f"}]
+      }
+    },
+    {
+      "data":{"values":[
+        {"state":"NT","lon":133.8,"lat":-20.0},{"state":"NSW","lon":147.0,"lat":-32.5},{"state":"QLD","lon":144.0,"lat":-22.5},{"state":"WA","lon":122.0,"lat":-25.0},{"state":"VIC","lon":144.5,"lat":-37.0},{"state":"SA","lon":135.0,"lat":-30.0},{"state":"TAS","lon":147.0,"lat":-42.0},{"state":"ACT","lon":149.0,"lat":-35.3}
+      ]},
+      "mark":{"type":"text","dy":-13,"color":"#faf8f4","fontSize":11,"fontWeight":"bold"},
+      "encoding":{"longitude":{"field":"lon","type":"quantitative"},"latitude":{"field":"lat","type":"quantitative"},"text":{"field":"state"}}
+    }
+  ]
 },OPT);
 
-// CHART 2: BAR STATE
+// ── CHART 2: BAR STATE ──
 vegaEmbed('#bar_state',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":270,
-  "data":{"values":[
-    {"state":"NT","area_ha":6800000},{"state":"NSW","area_ha":5200000},
-    {"state":"QLD","area_ha":2500000},{"state":"WA","area_ha":2200000},
-    {"state":"VIC","area_ha":1500000},{"state":"SA","area_ha":490000},
-    {"state":"TAS","area_ha":36000},{"state":"ACT","area_ha":10494}
-  ]},
+  "config":C,"width":500,"height":270,
+  "data":{"url":"data/state_burnt_area.csv"},
   "mark":{"type":"bar","cornerRadiusEnd":3},
   "encoding":{
     "x":{"field":"area_ha","type":"quantitative","title":"Area burned (ha)","axis":{"format":"~s"}},
-    "y":{"field":"state","type":"nominal","sort":"-x","title":null},
+    "y":{"field":"state","type":"nominal","sort":"-x","title":null,"axis":{"labelFontSize":12}},
     "color":{"field":"area_ha","type":"quantitative","scale":{"scheme":"orangered"},"legend":null},
-    "tooltip":[{"field":"state"},{"field":"area_ha","title":"Hectares","format":",.0f"}]
+    "tooltip":[{"field":"state","title":"State"},{"field":"area_ha","title":"Hectares","format":",.0f"}]
   }
 },OPT);
 
-// CHART 3: STRIP PLOT
+// ── CHART 3: STRIP PLOT (CUSTOM) ──
 vegaEmbed('#strip',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":220,
+  "config":C,"width":500,"height":220,
   "data":{"url":"data/daily_full.csv"},
   "mark":{"type":"tick","thickness":3,"opacity":0.85},
   "encoding":{
@@ -305,121 +328,118 @@ vegaEmbed('#strip',{
   }
 },OPT);
 
-// CHART 4: LINE TEMP
+// ── CHART 4: LINE TEMP ──
 vegaEmbed('#line_temp',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":210,
+  "config":C,"width":500,"height":210,
   "data":{"url":"data/monthly_climate.csv"},
   "layer":[
-    {"mark":{"type":"line","color":"#e07b39","strokeWidth":2.5},
-     "encoding":{"x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT,"title":"Month","axis":{"labelAngle":-30}},"y":{"field":"max_temp","type":"quantitative","title":"Avg max temp (°C)"}}},
-    {"mark":{"type":"point","color":"#e07b39","size":70,"filled":true},
-     "encoding":{"x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT},"y":{"field":"max_temp","type":"quantitative"},
-     "tooltip":[{"field":"month_label","title":"Month"},{"field":"max_temp","title":"Avg Max Temp (°C)","format":".1f"}]}}
+    {"mark":{"type":"line","color":"#e07b39","strokeWidth":2.5},"encoding":{"x":{"field":"month_label","type":"ordinal","sort":["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"],"title":"Month","axis":{"labelAngle":-30}},"y":{"field":"max_temp","type":"quantitative","title":"Avg max temp (°C)"}}},
+    {"mark":{"type":"point","color":"#e07b39","size":70,"filled":true},"encoding":{"x":{"field":"month_label","type":"ordinal","sort":["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"]},"y":{"field":"max_temp","type":"quantitative"},"tooltip":[{"field":"month_label","title":"Month"},{"field":"max_temp","title":"Avg Max Temp (°C)","format":".1f"}]}}
   ]
 },OPT);
 
-// CHART 5: BAR RAIN
+// ── CHART 5: BAR RAIN ──
 vegaEmbed('#bar_rain',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":210,
+  "config":C,"width":500,"height":210,
   "data":{"url":"data/monthly_climate.csv"},
   "layer":[
-    {"mark":{"type":"bar","color":"#4a90c4","cornerRadiusEnd":3},
-     "encoding":{
-       "x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT,"title":"Month","axis":{"labelAngle":-30}},
-       "y":{"field":"rainfall","type":"quantitative","title":"Total rainfall (mm)"},
-       "tooltip":[{"field":"month_label","title":"Month"},{"field":"rainfall","title":"Rainfall (mm)","format":".1f"}]
-     }},
-    {"mark":{"type":"text","dy":-8,"color":"#f5c518","fontSize":10,"fontWeight":"bold"},
-     "transform":[{"filter":"datum.month_label === '2019-12'"}],
-     "encoding":{"x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT},"y":{"field":"rainfall","type":"quantitative"},"text":{"value":"7.8mm ← drought"}}}
+    {"mark":{"type":"bar","color":"#4a90c4","cornerRadiusEnd":3},"encoding":{
+      "x":{"field":"month_label","type":"ordinal","sort":["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"],"title":"Month","axis":{"labelAngle":-30}},
+      "y":{"field":"rainfall","type":"quantitative","title":"Total rainfall (mm)"},
+      "tooltip":[{"field":"month_label","title":"Month"},{"field":"rainfall","title":"Rainfall (mm)","format":".1f"}]
+    }},
+    {"mark":{"type":"text","dy":-8,"color":"#f5c518","fontSize":10,"fontWeight":"bold"},"transform":[{"filter":"datum.month_label === '2019-12'"}],"encoding":{
+      "x":{"field":"month_label","type":"ordinal","sort":["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"]},
+      "y":{"field":"rainfall","type":"quantitative"},
+      "text":{"value":"7.8mm ← drought"}
+    }}
   ]
 },OPT);
 
-// CHART 6: SCATTER + REGRESSION
+// ── CHART 6: SCATTER + REGRESSION (CUSTOM) ──
 vegaEmbed('#scatter',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":280,
+  "config":C,"width":500,"height":280,
   "data":{"url":"data/daily_full.csv"},
   "layer":[
-    {"mark":{"type":"point","opacity":0.55,"size":35},
-     "encoding":{
-       "x":{"field":"max_temp","type":"quantitative","title":"Max temperature (°C)"},
-       "y":{"field":"rainfall","type":"quantitative","title":"Rainfall (mm)"},
-       "color":{"field":"danger_cat","type":"nominal","scale":DANGER_SCALE,"legend":{"title":"Danger Category","orient":"bottom","columns":5}},
-       "tooltip":[{"field":"date_str","title":"Date","type":"temporal","format":"%d %b %Y"},{"field":"max_temp","title":"Temp (°C)"},{"field":"rainfall","title":"Rain (mm)"},{"field":"danger_cat","title":"Danger"}]
-     }},
+    {"mark":{"type":"point","opacity":0.55,"size":35},"encoding":{
+      "x":{"field":"max_temp","type":"quantitative","title":"Max temperature (°C)","scale":{"domain":[5,48]}},
+      "y":{"field":"rainfall","type":"quantitative","title":"Rainfall (mm)"},
+      "color":{"field":"danger_cat","type":"nominal","scale":DANGER_SCALE,"legend":{"title":"Danger Category","orient":"bottom","columns":5}},
+      "tooltip":[{"field":"date_str","title":"Date","type":"temporal","format":"%d %b %Y"},{"field":"max_temp","title":"Max Temp (°C)"},{"field":"rainfall","title":"Rainfall (mm)"},{"field":"danger_cat","title":"Danger"}]
+    }},
     {"mark":{"type":"line","color":"rgba(255,255,255,0.4)","strokeWidth":1.5,"strokeDash":[5,3]},
      "transform":[{"regression":"rainfall","on":"max_temp"}],
-     "encoding":{"x":{"field":"max_temp","type":"quantitative"},"y":{"field":"rainfall","type":"quantitative"}}}
+     "encoding":{"x":{"field":"max_temp","type":"quantitative"},"y":{"field":"rainfall","type":"quantitative"}}
+    }
   ]
 },OPT);
 
-// CHART 7: DUAL AXIS
+// ── CHART 7: DUAL AXIS (CUSTOM) ──
 vegaEmbed('#dual',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":260,
+  "config":C,"width":500,"height":260,
   "data":{"url":"data/monthly_climate.csv"},
   "resolve":{"scale":{"y":"independent"}},
   "layer":[
-    {"mark":{"type":"area","color":"rgba(224,123,57,0.25)","line":{"color":"#e07b39","strokeWidth":2.5}},
-     "encoding":{
-       "x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT,"title":"Month","axis":{"labelAngle":-30}},
-       "y":{"field":"max_temp","type":"quantitative","title":"Avg max temp (°C)","axis":{"titleColor":"#e07b39","labelColor":"#e07b39"}}
-     }},
-    {"mark":{"type":"bar","color":"rgba(74,144,196,0.6)","width":18},
-     "encoding":{
-       "x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT},
-       "y":{"field":"rainfall","type":"quantitative","title":"Total rainfall (mm)","axis":{"titleColor":"#4a90c4","labelColor":"#4a90c4"}},
-       "tooltip":[{"field":"month_label","title":"Month"},{"field":"max_temp","title":"Avg Temp (°C)","format":".1f"},{"field":"rainfall","title":"Rainfall (mm)","format":".1f"}]
-     }}
+    {"mark":{"type":"area","color":"rgba(224,123,57,0.25)","line":{"color":"#e07b39","strokeWidth":2.5}},"encoding":{
+      "x":{"field":"month_label","type":"ordinal","sort":["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"],"title":"Month","axis":{"labelAngle":-30}},
+      "y":{"field":"max_temp","type":"quantitative","title":"Avg max temp (°C)","axis":{"titleColor":"#e07b39","labelColor":"#e07b39"}}
+    }},
+    {"mark":{"type":"bar","color":"rgba(74,144,196,0.55)","width":18},"encoding":{
+      "x":{"field":"month_label","type":"ordinal","sort":["2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03"]},
+      "y":{"field":"rainfall","type":"quantitative","title":"Total rainfall (mm)","axis":{"titleColor":"#4a90c4","labelColor":"#4a90c4"}},
+      "tooltip":[{"field":"month_label","title":"Month"},{"field":"max_temp","title":"Avg Temp (°C)","format":".1f"},{"field":"rainfall","title":"Rainfall (mm)","format":".1f"}]
+    }}
   ]
 },OPT);
 
-// CHART 8: STACKED DANGER DAYS
+// ── CHART 8: STACKED DANGER DAYS ──
 vegaEmbed('#stacked_danger',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":230,
+  "config":C,"width":500,"height":230,
   "data":{"url":"data/daily_full.csv"},
   "mark":"bar",
   "encoding":{
-    "x":{"field":"month_label","type":"ordinal","sort":MONTH_SORT2,"title":"Month","axis":{"labelAngle":-30}},
-    "y":{"aggregate":"count","title":"Number of days"},
+    "x":{"field":"month_label","type":"ordinal","sort":["Sep 2019","Oct 2019","Nov 2019","Dec 2019","Jan 2020","Feb 2020","Mar 2020"],"title":"Month","axis":{"labelAngle":-30}},
+    "y":{"aggregate":"count","title":"Number of days","axis":{"tickMinStep":1}},
     "color":{"field":"danger_cat","type":"nominal","scale":DANGER_SCALE,"legend":{"title":"Danger Category","orient":"bottom","columns":5}},
     "order":{"field":"danger_order","type":"quantitative"},
     "tooltip":[{"field":"month_label","title":"Month"},{"field":"danger_cat","title":"Category"},{"aggregate":"count","title":"Days"}]
   }
 },OPT);
 
-// CHART 9: DOT PLOT (simplified - no flatten)
+// ── CHART 9: NT VS NSW BUBBLE COMPARISON ──
 vegaEmbed('#dot_plot',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":180,
+  "config":C,
+  "width":500,
+  "height":220,
   "data":{"values":[
-    {"state":"NT","area_ha":6800000,"label":"NT — 6.8M ha\n0 deaths · 5 homes"},
-    {"state":"NSW","area_ha":5200000,"label":"NSW — 5.2M ha\n25 deaths · 2,176 homes"},
-    {"state":"QLD","area_ha":2500000,"label":"QLD — 2.5M ha\n0 deaths · 48 homes"},
-    {"state":"WA","area_ha":2200000,"label":"WA — 2.2M ha\n0 deaths · 1 home"},
-    {"state":"VIC","area_ha":1500000,"label":"VIC — 1.5M ha\n5 deaths · 396 homes"},
-    {"state":"SA","area_ha":490000,"label":"SA — 490K ha\n3 deaths · 151 homes"},
-    {"state":"TAS","area_ha":36000,"label":"TAS — 36K ha\n0 deaths · 2 homes"},
-    {"state":"ACT","area_ha":10494,"label":"ACT — 10K ha\n1 death · 0 homes"}
+    {"state":"NT","area_ha":6800000,"fatalities":0,"homes_lost":5},
+    {"state":"NSW","area_ha":5200000,"fatalities":25,"homes_lost":2176}
   ]},
-  "mark":{"type":"circle","filled":true,"opacity":0.9},
+  "mark":{"type":"circle","filled":true,"opacity":0.85,"stroke":"#faf8f4","strokeWidth":0.8},
   "encoding":{
-    "x":{"field":"state","type":"nominal","sort":"-y","title":null},
-    "y":{"field":"area_ha","type":"quantitative","title":"Area burned (ha)","axis":{"format":"~s"}},
-    "size":{"field":"area_ha","type":"quantitative","scale":{"range":[50,2000]},"legend":null},
-    "color":{"field":"area_ha","type":"quantitative","scale":{"scheme":"orangered"},"legend":null},
-    "tooltip":[{"field":"state"},{"field":"area_ha","title":"Area (ha)","format":",.0f"},{"field":"label","title":"Details"}]
+    "x":{"field":"area_ha","type":"quantitative","title":"Burned area (ha)","axis":{"format":"~s"}},
+    "y":{"field":"state","type":"nominal","title":null,"axis":{"labelFontSize":12}},
+    "size":{"field":"homes_lost","type":"quantitative","title":"Homes lost","scale":{"range":[150,3200]}},
+    "color":{"field":"fatalities","type":"quantitative","title":"Deaths","scale":{"scheme":"orangered"}},
+    "tooltip":[
+      {"field":"state","title":"State"},
+      {"field":"area_ha","title":"Area burned (ha)","format":",.0f"},
+      {"field":"fatalities","title":"Fatalities"},
+      {"field":"homes_lost","title":"Homes lost","format":",.0f"}
+    ]
   }
 },OPT);
 
-// CHART 10: PIE
+// ── CHART 10: PIE / DONUT ──
 vegaEmbed('#pie',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":"container","height":220,
+  "config":C,"width":500,"height":220,
   "data":{"values":[
     {"zone":"Forest & Woodland","pct":42},{"zone":"Grassland","pct":28},
     {"zone":"Shrubland","pct":18},{"zone":"Agricultural land","pct":8},{"zone":"Other","pct":4}
@@ -431,8 +451,6 @@ vegaEmbed('#pie',{
     "tooltip":[{"field":"zone","title":"Land Type"},{"field":"pct","title":"% of burnt area"}]
   }
 },OPT);
-
-// end
 </script>
 </body>
 </html>
