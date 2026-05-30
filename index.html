@@ -100,8 +100,8 @@
   <p class="sec-body">The fires swept across nearly every state and territory. <strong>The Northern Territory had the largest total area burned</strong> — 6.8 million hectares — but NT fires largely burned remote scrubland with minimal human impact. <strong>New South Wales told a different story</strong>: 5.2 million hectares burned, 25 lives lost, and 2,176 homes destroyed — the greatest human toll of any state. The two charts reveal this contrast: largest area burned ≠ greatest human impact.</p>
   <div class="g2">
     <div class="card">
-      <div class="card-title">Chart 1 · Choropleth Map — Burnt Area by State</div>
-      <div class="card-desc">Geographic map. Colour (hue + lightness channel) encodes total hectares burned. Darker = more land destroyed. Hover for exact values. Source: Wikipedia / AFAC 2020.</div>
+      <div class="card-title">Chart 1 · Geographic Bubble Map — Burnt Area by State</div>
+      <div class="card-desc">Geographic map with Australia outline. Circle size and colour encode total hectares burned. Larger and darker = more land destroyed. Hover for exact values. Source: Wikipedia / AFAC 2020.</div>
       <div id="map"></div>
       <p class="caption">NT had the largest burned area, while NSW had the highest human impact.</p>
     </div>
@@ -254,7 +254,7 @@ const DANGER_SCALE={
   range:["#4a90c4","#8fbc5a","#f5c518","#e07b39","#c1440e"]
 };
 
-// ── CHART 1: GEOGRAPHIC SYMBOL MAP ──
+// ── CHART 1: GEOGRAPHIC BUBBLE MAP WITH AUSTRALIA OUTLINE ──
 vegaEmbed('#map',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
   "config":C,
@@ -263,12 +263,12 @@ vegaEmbed('#map',{
   "projection":{"type":"mercator","center":[134,-28],"scale":520},
   "layer":[
     {
-      "data":{"sphere":{}},
-      "mark":{"type":"geoshape","fill":"rgba(255,255,255,0.02)","stroke":"rgba(255,255,255,0.12)"}
-    },
-    {
-      "data":{"graticule":{"step":[10,10]}},
-      "mark":{"type":"geoshape","stroke":"rgba(255,255,255,0.08)","strokeWidth":0.5}
+      "data":{
+        "url":"https://cdn.jsdelivr.net/npm/vega-datasets@2/data/world-110m.json",
+        "format":{"type":"topojson","feature":"countries"}
+      },
+      "transform":[{"filter":"datum.id == 36 || datum.id == '036'"}],
+      "mark":{"type":"geoshape","fill":"rgba(245,240,232,0.07)","stroke":"rgba(250,248,244,0.42)","strokeWidth":1.1}
     },
     {
       "data":{"values":[
@@ -281,13 +281,13 @@ vegaEmbed('#map',{
         {"state":"TAS","area_ha":36000,"lon":147.0,"lat":-42.0},
         {"state":"ACT","area_ha":10494,"lon":149.0,"lat":-35.3}
       ]},
-      "mark":{"type":"circle","opacity":0.85,"stroke":"#faf8f4","strokeWidth":0.7},
+      "mark":{"type":"circle","opacity":0.88,"stroke":"#faf8f4","strokeWidth":0.8},
       "encoding":{
         "longitude":{"field":"lon","type":"quantitative"},
         "latitude":{"field":"lat","type":"quantitative"},
-        "size":{"field":"area_ha","type":"quantitative","scale":{"range":[80,3500]},"legend":{"title":"Burned area (ha)","format":"~s"}},
-        "color":{"field":"area_ha","type":"quantitative","scale":{"scheme":"orangered"},"legend":null},
-        "tooltip":[{"field":"state","title":"State"},{"field":"area_ha","title":"Area burned (ha)","format":",.0f"}]
+        "size":{"field":"area_ha","type":"quantitative","scale":{"range":[70,3600]},"legend":{"title":"Burned area (ha)","format":"~s"}},
+        "color":{"field":"area_ha","type":"quantitative","scale":{"scheme":"orangered","domain":[0,6800000]},"legend":null},
+        "tooltip":[{"field":"state","title":"State/Territory"},{"field":"area_ha","title":"Area burned (ha)","format":",.0f"}]
       }
     },
     {
@@ -295,7 +295,11 @@ vegaEmbed('#map',{
         {"state":"NT","lon":133.8,"lat":-20.0},{"state":"NSW","lon":147.0,"lat":-32.5},{"state":"QLD","lon":144.0,"lat":-22.5},{"state":"WA","lon":122.0,"lat":-25.0},{"state":"VIC","lon":144.5,"lat":-37.0},{"state":"SA","lon":135.0,"lat":-30.0},{"state":"TAS","lon":147.0,"lat":-42.0},{"state":"ACT","lon":149.0,"lat":-35.3}
       ]},
       "mark":{"type":"text","dy":-13,"color":"#faf8f4","fontSize":11,"fontWeight":"bold"},
-      "encoding":{"longitude":{"field":"lon","type":"quantitative"},"latitude":{"field":"lat","type":"quantitative"},"text":{"field":"state"}}
+      "encoding":{
+        "longitude":{"field":"lon","type":"quantitative"},
+        "latitude":{"field":"lat","type":"quantitative"},
+        "text":{"field":"state"}
+      }
     }
   ]
 },OPT);
@@ -454,3 +458,4 @@ vegaEmbed('#pie',{
 </script>
 </body>
 </html>
+
