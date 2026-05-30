@@ -80,6 +80,7 @@
 
 <!-- ══ HERO ══ -->
 <div class="hero">
+  <div class="hero-eyebrow">01 — Overview</div>
   <div class="hero-eyebrow">FIT2179 Data Visualisation 2 · Monash University · Semester 1, 2026</div>
   <h1>Australia<em>Burns</em></h1>
   <p class="hero-sub">The 2019–20 Black Summer was Australia's most devastating fire season on record. This visualisation explores where the fires burned, when they peaked, why climate conditions made them so severe, and what the nation lost.</p>
@@ -186,18 +187,18 @@
       <p class="caption">December 2019 had the most High, Very High, and Extreme danger days of any month in the season.</p>
     </div>
     <div class="card">
-      <div class="card-title">Chart 9 · Dot Plot — NT vs NSW: Area vs Human Impact</div>
-      <div class="card-desc">Unit chart. Each dot = 100,000 hectares. Rows compare NT (largest area) against NSW (greatest human impact). The dot count makes scale tangible. Colour differentiates the two states. Source: Wikipedia / AFAC 2020.</div>
+      <div class="card-title">Chart 9 · Bubble Chart — NT vs NSW: Area vs Human Impact</div>
+      <div class="card-desc">Bubble chart using the same Wikipedia state table. X-position encodes burned area, Y-position encodes homes lost, circle size encodes fatalities, and colour identifies each state. This replaces the previous estimated land-type pie chart with fully traceable data.</div>
       <div id="dot_plot"></div>
-      <p class="caption">NT: 68 dots. NSW: 52 dots. But only NSW recorded 25 deaths and 2,176 homes lost — a reminder that area alone does not capture human impact.</p>
+      <p class="caption">NSW had fewer hectares burned than NT, but far more homes lost and fatalities, showing that burned area alone does not capture human impact.</p>
     </div>
   </div>
   <div class="g2" style="margin-top:1.25rem;">
     <div class="card full">
-      <div class="card-title">Chart 10 · Arc Chart (Pie) — Land Type Breakdown of Burnt Area</div>
-      <div class="card-desc">Donut chart. Arc length (theta channel) encodes proportion of total burnt area by land type. Based on DAFF / ABARES national fire extent analysis. Colour differentiates categories using distinct hues — not the same single-hue ramp used for quantitative encoding above. Source: DAFF National Indicative Aggregated Fire Extent Dataset 2020.</div>
+      <div class="card-title">Chart 10 · Scatter Plot — State Damage: Area, Homes Lost, and Fatalities</div>
+      <div class="card-desc">Scatter plot using the same Wikipedia state table as Chart 1 and Chart 2. X-position encodes burned area, Y-position encodes homes lost, circle size encodes fatalities, and colour identifies the state. This chart uses traceable real values instead of estimated land-type proportions.</div>
       <div id="pie"></div>
-      <p class="caption">Forest and woodland ecosystems — including critical koala and biodiversity habitat — suffered the largest share of destruction.</p>
+      <p class="caption">NSW stands out because it combines very high burned area with the highest homes lost and fatalities.</p>
     </div>
   </div>
 </section>
@@ -233,9 +234,9 @@
     <p>Generative AI tools (Claude by Anthropic) were used to assist with Vega-Lite JSON specification structure, grammar checking of narrative text, and CSV data formatting. All design decisions, story structure, chart selection rationale, domain analysis, and data source selection are the author's own work.</p>
     <br>
     <h4>Notes on Data</h4>
-    <p>Temperature and rainfall data are from a single BOM station (Melbourne Airport, VIC) and represent local Melbourne conditions, used here as an indicator of the broader southern Australian climate conditions during the fire season. Land type breakdown is derived from DAFF national analysis.</p>
+    <p>Temperature and rainfall data are from a single BOM station (Melbourne Airport, VIC) and represent local Melbourne conditions, used here as an indicator of the broader southern Australian climate conditions during the fire season. State-level burned area, fatalities, and homes lost are taken from the 2019–20 Australian bushfire season summary table.</p>
   </div>
-  <div class="author-line">Australia Burns: The 2019–20 Black Summer Story · FIT2179 Data Visualisation 2 · Monash University · Semester 1, 2026 · Created May 2026</div>
+  <div class="author-line">Australia Burns: The 2019–20 Black Summer Story · Jiabao Xu · 35474815 · FIT2179 Data Visualisation 2 · Monash University · Semester 1, 2026 · Created May 2026</div>
 </footer>
 
 
@@ -440,19 +441,34 @@ vegaEmbed('#dot_plot',{
   }
 },OPT);
 
-// ── CHART 10: PIE / DONUT ──
+// ── CHART 10: STATE DAMAGE SCATTER ──
 vegaEmbed('#pie',{
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "config":C,"width":500,"height":220,
+  "config":C,
+  "width":500,
+  "height":260,
   "data":{"values":[
-    {"zone":"Forest & Woodland","pct":42},{"zone":"Grassland","pct":28},
-    {"zone":"Shrubland","pct":18},{"zone":"Agricultural land","pct":8},{"zone":"Other","pct":4}
+    {"state":"NT","area_ha":6800000,"fatalities":0,"homes_lost":5},
+    {"state":"NSW","area_ha":5200000,"fatalities":25,"homes_lost":2176},
+    {"state":"QLD","area_ha":2500000,"fatalities":0,"homes_lost":48},
+    {"state":"WA","area_ha":2200000,"fatalities":0,"homes_lost":1},
+    {"state":"VIC","area_ha":1500000,"fatalities":5,"homes_lost":396},
+    {"state":"SA","area_ha":490000,"fatalities":3,"homes_lost":151},
+    {"state":"TAS","area_ha":36000,"fatalities":0,"homes_lost":2},
+    {"state":"ACT","area_ha":10494,"fatalities":1,"homes_lost":0}
   ]},
-  "mark":{"type":"arc","innerRadius":55,"outerRadius":95},
+  "mark":{"type":"circle","filled":true,"opacity":0.85,"stroke":"#faf8f4","strokeWidth":0.8},
   "encoding":{
-    "theta":{"field":"pct","type":"quantitative"},
-    "color":{"field":"zone","type":"nominal","scale":{"scheme":"tableau10"},"legend":{"title":"Land type","orient":"right"}},
-    "tooltip":[{"field":"zone","title":"Land Type"},{"field":"pct","title":"% of burnt area"}]
+    "x":{"field":"area_ha","type":"quantitative","title":"Burned area (ha)","axis":{"format":"~s"}},
+    "y":{"field":"homes_lost","type":"quantitative","title":"Homes lost","scale":{"type":"sqrt"}},
+    "size":{"field":"fatalities","type":"quantitative","title":"Fatalities","scale":{"range":[80,2200]}},
+    "color":{"field":"state","type":"nominal","title":"State"},
+    "tooltip":[
+      {"field":"state","title":"State/Territory"},
+      {"field":"area_ha","title":"Area burned (ha)","format":",.0f"},
+      {"field":"homes_lost","title":"Homes lost","format":",.0f"},
+      {"field":"fatalities","title":"Fatalities"}
+    ]
   }
 },OPT);
 </script>
